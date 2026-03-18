@@ -13,14 +13,17 @@ app.get("/items", (req, res) => {
     res.json(rows);
   });
 });
-
 // ADD item
 app.post("/items", (req, res) => {
-  const { name, stock } = req.body;
-  db.run("INSERT INTO items (name, stock) VALUES (?, ?)", [name, stock]);
-  res.json({ message: "Item added" });
-});
+  const { part_name, part_number, quantity, min_stock } = req.body;
 
+  db.run(
+    "INSERT INTO items (part_name, part_number, quantity, min_stock VALUES (?, ?, ?, ?)",
+    [part_name, part_number, quantity, min_stock]
+  );
+
+  res.json({ message: "Part added" });
+});
 // DELETE item
 app.delete("/items/:id", (req, res) => {
   db.run("DELETE FROM items WHERE id=?", [req.params.id]);
@@ -115,33 +118,24 @@ app.get("/history/:id", (req, res) => {
   );
 });
 async function addItem() {
-  const name = document.getElementById("name").value;
-  const stock = document.getElementById("stock").value;
+  const part_name = document.getElementById("part_name").value;
+  const part_number = document.getElementById("part_number").value;
+  const quantity = document.getElementById("quantity").value;
   const min_stock = document.getElementById("min_stock").value;
 
   await fetch("/items", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ name, stock, min_stock })
+    body: JSON.stringify({
+      part_name,
+      part_number,
+      quantity,
+      min_stock
+    })
   });
 
   loadItems();
-}
-data.forEach(item => {
-  let warning = "";
-
-  if (item.stock <= item.min_stock) {
-    warning = "⚠️ STOK MENIPIS!";
-  }
-
-  list.innerHTML += `
-    <li>
-      ${item.name} (${item.stock}) ${warning}
-      <button onclick="useItem(${item.id})">Pakai</button>
-    </li>
-  `;
-});
-async function useItem(id) {
+}async function useItem(id) {
   const qty = prompt("Jumlah dipakai:");
   
   await fetch("/update-stock", {
@@ -165,3 +159,18 @@ async function loadHistory(itemId) {
 
   renderChart(labels, qty);
 }
+data.forEach(item => {
+  let warning = "";
+
+  if (item.quantity <= item.min_stock) {
+    warning = "⚠️ Stok Minimum!";
+  }
+
+  list.innerHTML += `
+    <li>
+      <b>${item.part_name}</b><br>
+      No: ${item.part_number}<br>
+      Qty: ${item.quantity} ${warning}
+    </li>
+  `;
+});

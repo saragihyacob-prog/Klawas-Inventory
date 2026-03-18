@@ -5,12 +5,13 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      stock INTEGER
+      part_name TEXT,
+      part_number TEXT,
+      quantity INTEGER,
+      min_stock INTEGER
     )
   `);
 });
-
 module.exports = db;
 let chart;
 
