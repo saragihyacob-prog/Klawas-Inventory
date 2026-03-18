@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Inventory Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<button onclick="exportExcel()">Export Excel</button>
+<button onclick="loadHistory(${item.id})">Grafik</button>
+</head>
+<body>
+
+<h2>📦 Inventory</h2>
+
+<input id="name" placeholder="Nama Barang">
+<input id="stock" type="number" placeholder="Stok">
+<button onclick="addItem()">Tambah</button>
+<input id="min_stock" placeholder="Min Stok">
+
+<ul id="list"></ul>
+<canvas id="chart"></canvas>
+
+<script>
+const API = "";
+
+async function loadItems() {
+  const res = await fetch(API + "/items");
+  const data = await res.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.forEach(item => {
+    list.innerHTML += `
+      <li>
+        ${item.name} (${item.stock})
+        <button onclick="deleteItem(${item.id})">Hapus</button>
+      </li>
+    `;
+  });
+}
+
+async function addItem() {
+  const name = document.getElementById("name").value;
+  const stock = document.getElementById("stock").value;
+
+  await fetch(API + "/items", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ name, stock })
+  });
+
+  loadItems();
+}
+
+async function deleteItem(id) {
+  await fetch(API + "/items/" + id, { method: "DELETE" });
+  loadItems();
+}
+
+loadItems();
+</script>
+
+</body>
+</html>
