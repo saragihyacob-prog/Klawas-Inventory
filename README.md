@@ -1,0 +1,2 @@
+# Klawas-Inventory
+inventory resources
